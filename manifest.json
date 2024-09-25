@@ -1,0 +1,10 @@
+{
+    "Name": "Traveling Cart Stationery",
+    "Author": "Liv Maresh",
+    "Version": "1.0.0",
+    "Description": "Receive mail whenever the Traveling Cart comes to town, informing you of that day's inventory.'",
+    "UniqueID": "livmaresh.TravelingCartStationery",
+    "EntryDll": "TravelingCartStationery.dll",
+    "MinimumApiVersion": "4.0.0",
+    "UpdateKeys": []
+}
