@@ -20,6 +20,8 @@ using StardewValley.Locations;
 using xTile;
 using Microsoft.Xna.Framework;
 using StardewValley.Menus;
+using Microsoft.Xna.Framework.Content;
+using System.Net.Http.Json;
 
 namespace TravellingCartStationery
 {
@@ -28,6 +30,8 @@ namespace TravellingCartStationery
 
         private string letter = "";
         private string title = "";
+        private bool mailAdded = false;
+        private bool firstPass = true;
 
         public override void Entry(IModHelper helper)
         {
@@ -41,21 +45,24 @@ namespace TravellingCartStationery
             int[] festivalDays = { 15, 16, 17 };
             if (travelingCartDays.Contains(StardewValley.Game1.dayOfMonth))
             {
-                StardewValley.Utility.TryOpenShopMenu("Traveler", "AnyOrNone", false);
+                mailAdded = true;
                 title = "TCS " + getStardewDate();
                 StardewValley.Game1.addMail(title.Replace(" ", ""));
-            }
-            else if (StardewValley.Game1.CurrentSeasonDisplayName == "Winter" && festivalDays.Contains(StardewValley.Game1.dayOfMonth))
-            {
                 StardewValley.Utility.TryOpenShopMenu("Traveler", "AnyOrNone", false);
+            }
+            else if (StardewValley.Game1.CurrentSeasonDisplayName == "winter" && festivalDays.Contains(StardewValley.Game1.dayOfMonth))
+            {
+                mailAdded = true;
                 title = "NM " + getStardewDate();
                 StardewValley.Game1.addMail(title.Replace(" ", ""));
-            }
-            else if (StardewValley.Game1.CurrentSeasonDisplayName == "Spring" && festivalDays.Contains(StardewValley.Game1.dayOfMonth))
-            {
                 StardewValley.Utility.TryOpenShopMenu("Traveler", "AnyOrNone", false);
+            }
+            else if (StardewValley.Game1.CurrentSeasonDisplayName == "spring" && festivalDays.Contains(StardewValley.Game1.dayOfMonth))
+            {
+                mailAdded = true;
                 title = "DF " + getStardewDate();
                 StardewValley.Game1.addMail(title.Replace(" ", ""));
+                StardewValley.Utility.TryOpenShopMenu("Traveler", "AnyOrNone", false);
             }
         }
 
@@ -84,13 +91,19 @@ namespace TravellingCartStationery
                 {
                     ShopMenu shopMenu = e.NewMenu as ShopMenu;
                     List<string> items = new List<string>();
-                    if (shopMenu != null && shopMenu.ShopId == "Traveler" && StardewValley.Game1.timeOfDay.ToString() == "600")
+                    if (shopMenu != null && shopMenu.ShopId == "Traveler" && mailAdded)
                     {
                         foreach (var item in shopMenu.forSale)
                         {
                             items.Add(item.Name.ToString());
                         }
                         letter = addTravelingCartStationery(items);
+                        if (!firstPass)
+                        {
+                            Helper.GameContent.InvalidateCache("Data/mail");
+                        }
+                        firstPass = false;
+                        DataLoader.Mail(Game1.content);
                         e.NewMenu.exitThisMenuNoSound();
                     }
                 }
@@ -107,11 +120,12 @@ namespace TravellingCartStationery
             var ii = 0;
             while (ii < items.Count)
             {
-                if (ii + 1 == items.Count) result += items[ii] + "[#]" + title;
+                if (ii + 1 == items.Count) result += items[ii] + " [letterbg 2] [textcolor white] [#]" + title;
                 else result += items[ii] + "^";
                 ii++;
             }
 
+            mailAdded = false;
             return result;
         }
 
@@ -122,7 +136,7 @@ namespace TravellingCartStationery
 
         private string customToUpper(string subject)
         {
-            if (subject == null) return null;
+            if (subject == null) return "";
             if (subject.Length > 1) return char.ToUpper(subject[0]) + subject.Substring(1);
             return subject.ToUpper();
         }
