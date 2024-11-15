@@ -31,7 +31,6 @@ namespace TravellingCartStationery
         private string letter = "";
         private string title = "";
         private bool mailAdded = false;
-        private bool firstPass = true;
 
         public override void Entry(IModHelper helper)
         {
@@ -98,11 +97,7 @@ namespace TravellingCartStationery
                             items.Add(item.Name.ToString());
                         }
                         letter = addTravelingCartStationery(items);
-                        if (!firstPass)
-                        {
-                            Helper.GameContent.InvalidateCache("Data/mail");
-                        }
-                        firstPass = false;
+                        Helper.GameContent.InvalidateCache("Data/mail");
                         DataLoader.Mail(Game1.content);
                         e.NewMenu.exitThisMenuNoSound();
                     }
